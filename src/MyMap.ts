@@ -54,9 +54,13 @@ class MyMap extends egret.DisplayObjectContainer{
 
         super();  
         this.init();
+        this.initAStar();
     }
 
+
+
     private init(){
+
         //添加各个网格
         for(var i = 0; i < config.length; i++){
 
@@ -75,6 +79,27 @@ class MyMap extends egret.DisplayObjectContainer{
             console.log(gridX, gridY);
 
         },this);
+
+
+
+
+        
+    }
+
+
+    private initAStar(){
+
+        var grid : Grid = new Grid(5, 8);
+        var aStar : AStar  = new AStar();
+        grid.setStartNode(0,0);
+        grid.setEndNode(1,1);
+        aStar.findPath(grid);
+        console.log(aStar.path.length);
+        for(var i = 0; i < aStar.path.length; i++){
+            console.log(aStar.path[i].x);
+            console.log(aStar.path[i].y);
+        }
+
     }
 
     

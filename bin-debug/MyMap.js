@@ -45,6 +45,7 @@ var MyMap = (function (_super) {
     function MyMap() {
         _super.call(this);
         this.init();
+        this.initAStar();
     }
     var d = __define,c=MyMap,p=c.prototype;
     p.init = function () {
@@ -62,6 +63,18 @@ var MyMap = (function (_super) {
             var gridY = Math.floor(localY / MyMap.SIZE);
             console.log(gridX, gridY);
         }, this);
+    };
+    p.initAStar = function () {
+        var grid = new Grid(5, 8);
+        var aStar = new AStar();
+        grid.setStartNode(0, 0);
+        grid.setEndNode(1, 1);
+        aStar.findPath(grid);
+        console.log(aStar.path.length);
+        for (var i = 0; i < aStar.path.length; i++) {
+            console.log(aStar.path[i].x);
+            console.log(aStar.path[i].y);
+        }
     };
     //width:5*8,height:128*8
     MyMap.SIZE = 128;

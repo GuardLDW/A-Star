@@ -1,13 +1,13 @@
 //单个节点
-var OneNode = (function () {
-    function OneNode(x, y) {
+var TheNode = (function () {
+    function TheNode(x, y) {
         this.x = x;
         this.y = y;
     }
-    var d = __define,c=OneNode,p=c.prototype;
-    return OneNode;
+    var d = __define,c=TheNode,p=c.prototype;
+    return TheNode;
 }());
-egret.registerClass(OneNode,'OneNode');
+egret.registerClass(TheNode,'TheNode');
 //整个网格
 var Grid = (function () {
     function Grid(numCols, numRows) {
@@ -18,7 +18,7 @@ var Grid = (function () {
         for (var i = 0; i < this.numCols; i++) {
             this.nodes[i] = new Array();
             for (var j = 0; j < this.numRows; j++) {
-                this.nodes[i][j] = new OneNode(i, j);
+                this.nodes[i][j] = new TheNode(i, j);
             }
         }
     }

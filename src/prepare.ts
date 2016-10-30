@@ -1,12 +1,17 @@
 //单个节点
-class OneNode{
+class TheNode{
 
+    //网格坐标系
     public x;
     public y;
+
+    //寻路需要计算的数据
     public f;
     public g;
     public h;
+
     public walkable;
+    
     public parentNode;
 
     constructor(x : number, y : number){
@@ -22,11 +27,11 @@ class OneNode{
 //整个网格
 class Grid{
 
-    private startNode;
-    private endNode;
-    private numCols;
-    private numRows;
-    private nodes;
+    public startNode;
+    public endNode;
+    public numCols;
+    public numRows;
+    public nodes;
 
     constructor(numCols : number, numRows : number){
 
@@ -40,7 +45,7 @@ class Grid{
             this.nodes[i] = new Array();
             for(var j = 0; j < this.numRows; j++){
 
-                this.nodes[i][j] = new OneNode(i,j);
+                this.nodes[i][j] = new TheNode(i,j);
             }
         }
     }
