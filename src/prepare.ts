@@ -1,103 +1,83 @@
-//单个节点
-class TheNode{
+class MapNode {
 
-    //网格坐标系
-    public x;
-    public y;
+    public x:number;
+    public y:number;
+    public f:number;
+    public g:number;
+    public h:number;
+    public walkable:boolean = true;
+    public parent:MapNode;
+    public costMultiplier:number = 1.0;
 
-    //寻路需要计算的数据
-    public f;
-    public g;
-    public h;
+    public constructor(x:number,y:number) {
 
-    public walkable;
-    
-    public parentNode;
-
-    constructor(x : number, y : number){
-        
         this.x = x;
         this.y = y;
-
     }
 
 }
 
+class Grid {
 
-//整个网格
-class Grid{
+    public _startNode:MapNode;
+    public _endNode:MapNode;
+    public _nodes;
+    public _numCols:number;
+    public _numRows:number;
 
-    public startNode;
-    public endNode;
-    public numCols;
-    public numRows;
-    public nodes;
+    public constructor(numCols:number,numRows:number) {
 
-    constructor(numCols : number, numRows : number){
+        this._numCols = numCols;
+        this._numRows = numRows;
+        this._nodes = new Array();
 
-        this.numCols = numCols;
-        this.numRows = numRows;
-        this.nodes = new Array();
+        for(var i = 0; i<this._numCols; i++) {
 
-        //创建二维数组，每个元素是一个节点
-        for(var i = 0; i < this.numCols; i++){
-
-            this.nodes[i] = new Array();
-            for(var j = 0; j < this.numRows; j++){
-
-                this.nodes[i][j] = new TheNode(i,j);
+            this._nodes[i] =  new Array();
+            for(var j=0; j<this._numRows; j++) {
+                this._nodes[i][j] = new MapNode(i,j);
             }
         }
     }
 
-    //获取节点
-    public getNode(i : number, j : number){
+    public getNode(x:number,y:number):MapNode {
 
-        return this.nodes[i][j];
+        return this._nodes[x][y] as MapNode;
     }
 
-    //设置结束节点
-    public setEndNode(i : number, j : number){
+    public setEndNode(x:number,y:number):void {
 
-        this.endNode = this.nodes[i][j];
+        this._endNode = this._nodes[x][y] as MapNode; 
     }
 
-    //设置起始节点
-    public setStartNode(i : number, j : number){
+    public getEndNode():MapNode {
 
-        this.startNode = this.nodes[i][j];
+        return this._endNode;
     }
 
-    //设置节点是否可通过
-    public setWalkable(i : number, j : number, value : boolean){
+    public setStartNode(x:number,y:number):void {
 
-        this.nodes[i][j].walkable = value;
+        this._startNode = this._nodes[x][y] as MapNode;
     }
 
+    public getStartNode():MapNode {
 
-    //获取结束节点
-    public getEndNode(){
-
-        return this.endNode;
+        return this._startNode;
     }
 
-    //获取起始节点
-    public getStartNode(){
+    public setWalkable(x:number,y:number,value:boolean) {
 
-        return this.startNode;
+        this._nodes[x][y].walkable = value;
     }
 
-    //获取网格列数
-    public getNumCols(){
+    public getNumCols():number {
 
-        return this.numCols;
+        return this._numCols;
     }
 
-    //获取网格行数
-    public getNumRows(){
+    public getNumRows():number {
 
-        return this.numRows;
+        return this._numRows;
     }
-
 
 }

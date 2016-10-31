@@ -12,23 +12,23 @@ var config = [
     { x: 1, y: 2, walkable: true, image: "road_jpg" },
     { x: 1, y: 3, walkable: true, image: "road_jpg" },
     { x: 1, y: 4, walkable: true, image: "road_jpg" },
-    { x: 1, y: 5, walkable: true, image: "noRoad_jpg" },
+    { x: 1, y: 5, walkable: false, image: "noRoad_jpg" },
     { x: 1, y: 6, walkable: true, image: "road_jpg" },
     { x: 1, y: 7, walkable: true, image: "road_jpg" },
-    { x: 2, y: 0, walkable: true, image: "noRoad_jpg" },
-    { x: 2, y: 1, walkable: true, image: "noRoad_jpg" },
-    { x: 2, y: 2, walkable: true, image: "noRoad_jpg" },
-    { x: 2, y: 3, walkable: true, image: "noRoad_jpg" },
+    { x: 2, y: 0, walkable: false, image: "noRoad_jpg" },
+    { x: 2, y: 1, walkable: false, image: "noRoad_jpg" },
+    { x: 2, y: 2, walkable: false, image: "noRoad_jpg" },
+    { x: 2, y: 3, walkable: false, image: "noRoad_jpg" },
     { x: 2, y: 4, walkable: true, image: "road_jpg" },
-    { x: 2, y: 5, walkable: true, image: "noRoad_jpg" },
+    { x: 2, y: 5, walkable: false, image: "noRoad_jpg" },
     { x: 2, y: 6, walkable: true, image: "road_jpg" },
     { x: 2, y: 7, walkable: true, image: "road_jpg" },
     { x: 3, y: 0, walkable: true, image: "road_jpg" },
     { x: 3, y: 1, walkable: true, image: "road_jpg" },
     { x: 3, y: 2, walkable: true, image: "road_jpg" },
-    { x: 3, y: 3, walkable: true, image: "noRoad_jpg" },
-    { x: 3, y: 4, walkable: true, image: "noRoad_jpg" },
-    { x: 3, y: 5, walkable: true, image: "noRoad_jpg" },
+    { x: 3, y: 3, walkable: false, image: "noRoad_jpg" },
+    { x: 3, y: 4, walkable: false, image: "noRoad_jpg" },
+    { x: 3, y: 5, walkable: false, image: "noRoad_jpg" },
     { x: 3, y: 6, walkable: true, image: "road_jpg" },
     { x: 3, y: 7, walkable: true, image: "road_jpg" },
     { x: 4, y: 0, walkable: true, image: "road_jpg" },
@@ -45,7 +45,6 @@ var MyMap = (function (_super) {
     function MyMap() {
         _super.call(this);
         this.init();
-        this.initAStar();
     }
     var d = __define,c=MyMap,p=c.prototype;
     p.init = function () {
@@ -55,26 +54,33 @@ var MyMap = (function (_super) {
             var tile = new Tile(data);
             this.addChild(tile);
         }
+        var player = new egret.Bitmap();
+        player.width = 128;
+        player.height = 128;
+        player.texture = RES.getRes("player_jpg");
+        this.addChild(player);
         this.touchEnabled = true;
         this.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
             var localX = e.localX;
             var localY = e.localY;
             var gridX = Math.floor(localX / MyMap.SIZE);
             var gridY = Math.floor(localY / MyMap.SIZE);
-            console.log(gridX, gridY);
+            var grid = new Grid(5, 8);
+            for (var i = 0; i < config.length; i++) {
+                grid.setWalkable(config[i].x, config[i].y, config[i].walkable);
+            }
+            var aStar = new AStar();
+            grid.setStartNode(0, 0);
+            grid.setEndNode(gridX, gridY);
+            if (aStar.findPath(grid)) {
+                var path = aStar._path;
+                var playerTween = egret.Tween.get(player);
+                for (var i = 0; i < path.length; i++) {
+                    console.log("x:" + path[i].x + " y:" + path[i].y + "\n");
+                    playerTween.to({ x: path[i].x * MyMap.SIZE, y: path[i].y * MyMap.SIZE }, 1500, egret.Ease.sineIn);
+                }
+            }
         }, this);
-    };
-    p.initAStar = function () {
-        var grid = new Grid(5, 8);
-        var aStar = new AStar();
-        grid.setStartNode(0, 0);
-        grid.setEndNode(1, 1);
-        aStar.findPath(grid);
-        console.log(aStar.path.length);
-        for (var i = 0; i < aStar.path.length; i++) {
-            console.log(aStar.path[i].x);
-            console.log(aStar.path[i].y);
-        }
     };
     //width:5*8,height:128*8
     MyMap.SIZE = 128;

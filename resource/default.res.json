@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_jpg,description_json,road_jpg,noRoad_jpg",
+			"keys": "bg_jpg,description_json,road_jpg,noRoad_jpg,player_jpg",
 			"name": "preload"
 		}
 	],
@@ -25,6 +25,11 @@
 			"name": "noRoad_jpg",
 			"type": "image",
 			"url": "assets/noRoad.jpg"
+		},
+		{
+			"name": "player_jpg",
+			"type": "image",
+			"url": "assets/player.jpg"
 		}
 	]
 }

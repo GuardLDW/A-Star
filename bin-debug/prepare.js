@@ -1,59 +1,50 @@
-//单个节点
-var TheNode = (function () {
-    function TheNode(x, y) {
+var MapNode = (function () {
+    function MapNode(x, y) {
+        this.walkable = true;
+        this.costMultiplier = 1.0;
         this.x = x;
         this.y = y;
     }
-    var d = __define,c=TheNode,p=c.prototype;
-    return TheNode;
+    var d = __define,c=MapNode,p=c.prototype;
+    return MapNode;
 }());
-egret.registerClass(TheNode,'TheNode');
-//整个网格
+egret.registerClass(MapNode,'MapNode');
 var Grid = (function () {
     function Grid(numCols, numRows) {
-        this.numCols = numCols;
-        this.numRows = numRows;
-        this.nodes = new Array();
-        //创建二维数组，每个元素是一个节点
-        for (var i = 0; i < this.numCols; i++) {
-            this.nodes[i] = new Array();
-            for (var j = 0; j < this.numRows; j++) {
-                this.nodes[i][j] = new TheNode(i, j);
+        this._numCols = numCols;
+        this._numRows = numRows;
+        this._nodes = new Array();
+        for (var i = 0; i < this._numCols; i++) {
+            this._nodes[i] = new Array();
+            for (var j = 0; j < this._numRows; j++) {
+                this._nodes[i][j] = new MapNode(i, j);
             }
         }
     }
     var d = __define,c=Grid,p=c.prototype;
-    //获取节点
-    p.getNode = function (i, j) {
-        return this.nodes[i][j];
+    p.getNode = function (x, y) {
+        return this._nodes[x][y];
     };
-    //设置结束节点
-    p.setEndNode = function (i, j) {
-        this.endNode = this.nodes[i][j];
+    p.setEndNode = function (x, y) {
+        this._endNode = this._nodes[x][y];
     };
-    //设置起始节点
-    p.setStartNode = function (i, j) {
-        this.startNode = this.nodes[i][j];
-    };
-    //设置节点是否可通过
-    p.setWalkable = function (i, j, value) {
-        this.nodes[i][j].walkable = value;
-    };
-    //获取结束节点
     p.getEndNode = function () {
-        return this.endNode;
+        return this._endNode;
     };
-    //获取起始节点
+    p.setStartNode = function (x, y) {
+        this._startNode = this._nodes[x][y];
+    };
     p.getStartNode = function () {
-        return this.startNode;
+        return this._startNode;
     };
-    //获取网格列数
+    p.setWalkable = function (x, y, value) {
+        this._nodes[x][y].walkable = value;
+    };
     p.getNumCols = function () {
-        return this.numCols;
+        return this._numCols;
     };
-    //获取网格行数
     p.getNumRows = function () {
-        return this.numRows;
+        return this._numRows;
     };
     return Grid;
 }());

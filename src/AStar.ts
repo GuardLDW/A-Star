@@ -1,188 +1,187 @@
-class AStar{
+class AStar {
 
-    //开放列表,即待查列表
-    private openArray;
+		  _openList: MapNode[] = [];//Array<TileNode>//
 
-    //闭合列表，即已查列表
-    private closedArray;
+		  _closedList: MapNode[] = [];  //已考察表
 
-    public path;
+		  _grid: Grid;
 
-    private grid : Grid;
-    public endNode : TheNode;
-    public startNode : TheNode;
+		  _startNode: MapNode;
+		  _endNode: MapNode;
 
-    //heuristic：启发式的
-    //曼哈顿
-    //private heuristic : Function = this.manhattan;
-    //private heuristic : Function = this.
+		  _path: MapNode[] = [];
 
-    private straightCost : number = 1.0;
-    private diagCost : number = Math.SQRT2;
-    
-    //传入当前地图的整个网格
-    public findPath(grid : Grid) : boolean{
+	_heuristic: Function = this.diagonal;
+
+		  _straightCost: number = 1.0;
+		  _diagCost: number = Math.SQRT2;
 
 
-        this.grid = grid;
-        this.openArray = new Array();
-        this.closedArray = new Array();
+	public findPath(grid: Grid): Boolean {
+		this._grid = grid;
+		this._openList = new Array();
+		this._closedList = new Array();
 
-        this.startNode = grid.startNode;
-        this.endNode = grid.endNode;
+		this._startNode = this._grid._startNode;
+		this._endNode = this._grid._endNode;
 
-        this.startNode.g = 0;
-        this.startNode.h = this.manhattan(this.startNode);
-        this.startNode.f = this.startNode.g + this.startNode.h;
+		this._startNode.g = 0;
+		this._startNode.h = this._heuristic(this._startNode);
+		this._startNode.f = this._startNode.g + this._startNode.h;
 
-        return this.search();
-    }
+		return this.search();
+	}
 
-    //迭代处理直到终止节点
-    public search() : boolean{
+	public search(): Boolean {
 
-        var node : TheNode = this.startNode;
+		var currentNode: MapNode = this._startNode;
 
-        //当前节点不为结束节点时
-        while(node != this.endNode){
+		while (currentNode != this._endNode) {
 
-            //确保不会访问边界以外的网格
-            var startX = Math.max(0, node.x - 1);
-            var endX = Math.min(this.grid.numCols - 1, node.x + 1);
-            var startY = Math.max(0, node.y - 1);
-            var endY = Math.min(this.grid.numRows - 1, node.y + 1);
+			var startX: number = Math.max(0, currentNode.x - 1);
+			var endX: number = Math.min(this._grid._numCols - 1, currentNode.x + 1);
 
-            //检查当前节点周围的所有节点，从当前节点的“左上角”开始
-            for(var i = startX; i <= endX; i++){
-console.log("i:" + i);
-                for(var j = startY; j <= endY; j++){
-console.log("j:" + j);
-                    var test : TheNode = this.grid.getNode(i, j);
+			var startY: number = Math.max(0, currentNode.y - 1);
+			var endY: number = Math.min(this._grid._numRows - 1, currentNode.y + 1);
 
-                    //不必计算起始的的节点(即中间的节点)或是不可走的点
-                    if(test == node){
-                        continue;
-                    }
+			for (var i: number = startX; i <= endX; i++) {
 
+				for (var j: number = startY; j <= endY; j++) {
+					var test: MapNode = this._grid._nodes[i][j];
+					if (test == currentNode || !test.walkable||!this._grid._nodes[currentNode.x][test.y].walkable||!this._grid._nodes[test.x][currentNode.y].walkable)
+						{continue;}
 
-                    // 计算g
-                    var cost : number = this.straightCost;
+					var cost: number = this._straightCost;
+					if (!((currentNode.x == test.x) || (currentNode.y == test.y))) {
+						cost = this._diagCost;
+					}
 
-                    //X，y都不相等即在对角线
-                    if(!((node.x == test.x) || (node.y == test.y))){
+					var g: number = currentNode.g + cost;
+					var h: number = this._heuristic(test);
+					var f: number = g + h;
 
-                        cost = this.diagCost;
-                    }
-
-                    var g : number = node.g + cost;
-                    var h : number = this.manhattan(test);
-                    var f = g + h;
-
-                    //如果检查的节点在待查或者已查列表中，则无需再计算g,h,f
-                    if(this.isOpen(test) || this.isClosed(test)){
-          
-                        if(test.f > f){
-
-                            test.f = f;
-                            test.g = g;
-                            test.h = h;
-                            test.parentNode = node;
-                        }
-                    }else{
-
-                        test.f = f;
-                        test.g = g;
-                        test.h = h;
-                        test.parentNode = node;
-
-                        //将现在较小的代价的节点放入待查列表
-                        this.openArray.push(node);
-                    }
-                }
-            }
-                //检查完了当前节点周围所有的合法节点,将当前节点放到已查列表中
-                this.closedArray.push(node);
-   
-                if(this.openArray.length == 0){
-                    
-                           
-                    return false;
-                }
-
-                //选择待查列表中最小的节点,当做下一次的检测的节点进入while循环
-                for(var i = 1; i < this.openArray.length; i++){
-                    
-                    var min = 0;
-
-                    if(this.openArray[i-1].f < this.openArray[i].f){
-
-                        min = i - 1;
-                         
-                    }else{
-                        
-                    }
-
-                    node = this.openArray[min];
-                }
-    
-           
-        }
-
-        this.buildPath();
-        return true;
-    }
-
-        
-  
+					if (this.isOpen(test) || this.isClosed(test)) {
+						if (test.f > f) {
+							test.f = f;
+							test.g = g;
+							test.h = h;
+							test.parent = currentNode;
+						}
+					} else {
+						test.f = f;
+						test.g = g;
+						test.h = h;
+						test.parent = currentNode;
+						this._openList.push(test);
+					}
+				}
+			}
 
 
+			this._closedList.push(currentNode);  //已考察列表
 
-   private buildPath() : void{
+			if (this._openList.length == 0) {
 
-       this.path = new Array();
-       var node = this.endNode;
-       this.path.push(node);
-       while(node != this.startNode){
-           
-           node = node.parentNode;
-           this.path.unshift(node);
-       }
-   }
+				return false;
+			}
+
+			//this._openList.sortOn("f", Array.NUMERIC); 把f从小到大排序
+
+			// var allf:number[]=new Array();
+			// for(var i=0;i<this._openList.length;i++){
+            // allf[i]=this._openList[i].f;
+			// }
+			
+			this._openList.sort(function (a, b) {
+				// if (a.f > b.f) {
+				// 	return 1;
+				// } else if (a.f < b.f) {
+				// 	return -1
+				// } else {
+				// 	return 0;
+				// }
+				return a.f - b.f;
+			});
+			
+			currentNode = this._openList.shift() as MapNode;
+
+		}
+
+		this.buildPath();
+
+		return true;
+	}
+
+	
+
+	public isOpen(node: MapNode): Boolean {
+		for (var i: number = 0; i < this._openList.length; i++) {
+			if (this._openList[i] == node) {
+				return true;
+			}
+		}
+		return false;
+			//return this._openList.indexOf(node) > 0 ? true : false;
+	}
+
+	
+
+	public isClosed(node: MapNode): Boolean {
+		for (var i: number = 0; i < this._closedList.length; i++) {
+			if (this._closedList[i] == node) {
+				return true;
+			}
+		}
+		return false;
+//return this._closedList.indexOf(node) > 0 ? true : false;
+	}
+	
 
 
+    public buildPath(): void {
+
+		this._path = new Array();
+		var node: MapNode = this._endNode;
+		this._path.push(node);
+		while (node != this._startNode) {
+			node = node.parent;
+			this._path.unshift(node);  //开头加入
+		}
+	}
+
+	public manhattan(node: MapNode): number {
+		return Math.abs(this._endNode.x - node.x) * this._straightCost + Math.abs(this._endNode.y - node.y) * this._straightCost;
+	}
+
+	public euclidian(node: MapNode): number {
+		var dx: number = this._endNode.x - node.x;
+		var dy: number = this._endNode.y - node.y;
+
+		return Math.sqrt(dx * dx + dy * dy) * this._straightCost;
+	}
 
 
-   //检测节点是否在开放列表中
-   private isOpen(node : TheNode) : boolean{
+	public diagonal(node: MapNode): number {
+		var dx: number = Math.abs(this._endNode.x - node.x);
+		var dy: number = Math.abs(this._endNode.y - node.y);
 
-       for(var i = 0; i < this.openArray.length; i++){
+		var diag: number = Math.min(dx, dy);
+		var straight: number = dx + dy;
 
-           if(this.openArray[i] == node){
-               return true;
-           }
-       }
-       return false;
-   }
+		return this._diagCost * diag + this._straightCost * (straight - 2 * diag);
+	}
 
-   //检测节点是否在闭合列表中
-   private isClosed(node : TheNode) : boolean{
+	public visited(): MapNode[] {
+		return this._closedList.concat(this._openList);
+	}
 
-       for(var i = 0; i < this.closedArray.length; i++){
+	public validNode(node: MapNode, currentNode: MapNode): Boolean {
+		if (currentNode == node || !node.walkable) return false;
 
-           if(this.closedArray[i] == node){
-               return true;
-           }
-       }
-       return false;
-   }
+		if (!this._grid._nodes[currentNode.x][node.y].walkable) return false;
 
+		if (!this._grid._nodes[node.x][currentNode.y].walkable) return false;
 
-
-    private manhattan(node : TheNode) : number{
-
-
-        return Math.abs(node.x - this.endNode.x) * this.straightCost
-        + Math.abs(node.y - this.endNode.y) * this.straightCost;
-
-    }
+		return true;
+	}
 }
