@@ -1,6 +1,6 @@
+//每一个节点
 var MapNode = (function () {
     function MapNode(x, y) {
-        this.walkable = true;
         this.costMultiplier = 1.0;
         this.x = x;
         this.y = y;
@@ -9,6 +9,7 @@ var MapNode = (function () {
     return MapNode;
 }());
 egret.registerClass(MapNode,'MapNode');
+//整个网格，控制所有的节点
 var Grid = (function () {
     function Grid(numCols, numRows) {
         this._numCols = numCols;
@@ -49,4 +50,25 @@ var Grid = (function () {
     return Grid;
 }());
 egret.registerClass(Grid,'Grid');
+//实际地图的每一个区块
+var Tile = (function (_super) {
+    __extends(Tile, _super);
+    function Tile(data) {
+        _super.call(this);
+        this.init(data);
+    }
+    var d = __define,c=Tile,p=c.prototype;
+    p.init = function (data) {
+        this.x = data.x * MyMap.SIZE;
+        this.y = data.y * MyMap.SIZE;
+        this.image = data.image;
+        var bitmap = new egret.Bitmap();
+        bitmap.width = 128; //128 * 5 = 640
+        bitmap.height = 128; //128 * 8 = 1024
+        bitmap.texture = RES.getRes(this.image);
+        this.addChild(bitmap);
+    };
+    return Tile;
+}(egret.DisplayObjectContainer));
+egret.registerClass(Tile,'Tile');
 //# sourceMappingURL=prepare.js.map

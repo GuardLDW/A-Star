@@ -1,8 +1,12 @@
 var AStar = (function () {
     function AStar() {
-        this._openList = []; //Array<TileNode>//
-        this._closedList = []; //已考察表
+        //待查列表
+        this._openList = [];
+        //已查列表
+        this._closedList = [];
+        //最终路径
         this._path = [];
+        //设置启发函数
         this._heuristic = this.diagonal;
         this._straightCost = 1.0;
         this._diagCost = Math.SQRT2;
@@ -19,9 +23,11 @@ var AStar = (function () {
         this._startNode.f = this._startNode.g + this._startNode.h;
         return this.search();
     };
+    //一直到找到路为止
     p.search = function () {
         var currentNode = this._startNode;
         while (currentNode != this._endNode) {
+            //保证节点不在地图外
             var startX = Math.max(0, currentNode.x - 1);
             var endX = Math.min(this._grid._numCols - 1, currentNode.x + 1);
             var startY = Math.max(0, currentNode.y - 1);
@@ -29,6 +35,7 @@ var AStar = (function () {
             for (var i = startX; i <= endX; i++) {
                 for (var j = startY; j <= endY; j++) {
                     var test = this._grid._nodes[i][j];
+                    //检测节点为当前节点或不可通过时，无需计算代价
                     if (test == currentNode || !test.walkable || !this._grid._nodes[currentNode.x][test.y].walkable || !this._grid._nodes[test.x][currentNode.y].walkable) {
                         continue;
                     }
@@ -56,23 +63,12 @@ var AStar = (function () {
                     }
                 }
             }
-            this._closedList.push(currentNode); //已考察列表
+            this._closedList.push(currentNode);
+            //待查列表
             if (this._openList.length == 0) {
                 return false;
             }
-            //this._openList.sortOn("f", Array.NUMERIC); 把f从小到大排序
-            // var allf:number[]=new Array();
-            // for(var i=0;i<this._openList.length;i++){
-            // allf[i]=this._openList[i].f;
-            // }
             this._openList.sort(function (a, b) {
-                // if (a.f > b.f) {
-                // 	return 1;
-                // } else if (a.f < b.f) {
-                // 	return -1
-                // } else {
-                // 	return 0;
-                // }
                 return a.f - b.f;
             });
             currentNode = this._openList.shift();
@@ -87,7 +83,6 @@ var AStar = (function () {
             }
         }
         return false;
-        //return this._openList.indexOf(node) > 0 ? true : false;
     };
     p.isClosed = function (node) {
         for (var i = 0; i < this._closedList.length; i++) {
@@ -96,7 +91,6 @@ var AStar = (function () {
             }
         }
         return false;
-        //return this._closedList.indexOf(node) > 0 ? true : false;
     };
     p.buildPath = function () {
         this._path = new Array();
@@ -104,7 +98,7 @@ var AStar = (function () {
         this._path.push(node);
         while (node != this._startNode) {
             node = node.parent;
-            this._path.unshift(node); //开头加入
+            this._path.unshift(node);
         }
     };
     p.manhattan = function (node) {
@@ -121,18 +115,6 @@ var AStar = (function () {
         var diag = Math.min(dx, dy);
         var straight = dx + dy;
         return this._diagCost * diag + this._straightCost * (straight - 2 * diag);
-    };
-    p.visited = function () {
-        return this._closedList.concat(this._openList);
-    };
-    p.validNode = function (node, currentNode) {
-        if (currentNode == node || !node.walkable)
-            return false;
-        if (!this._grid._nodes[currentNode.x][node.y].walkable)
-            return false;
-        if (!this._grid._nodes[node.x][currentNode.y].walkable)
-            return false;
-        return true;
     };
     return AStar;
 }());

@@ -48,37 +48,62 @@ var MyMap = (function (_super) {
     }
     var d = __define,c=MyMap,p=c.prototype;
     p.init = function () {
-        //添加各个网格
+        //生成地图
         for (var i = 0; i < config.length; i++) {
             var data = config[i];
             var tile = new Tile(data);
             this.addChild(tile);
         }
         var player = new egret.Bitmap();
+        var playerX = 0;
+        var playerY = 0;
+        var move = false;
         player.width = 128;
         player.height = 128;
         player.texture = RES.getRes("player_jpg");
         this.addChild(player);
+        var playerTween;
         this.touchEnabled = true;
         this.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
+            playerTween = egret.Tween.get(player);
+            console.log("ismove:  " + move);
             var localX = e.localX;
             var localY = e.localY;
             var gridX = Math.floor(localX / MyMap.SIZE);
             var gridY = Math.floor(localY / MyMap.SIZE);
+            //生成与地图对应的各个节点
             var grid = new Grid(5, 8);
             for (var i = 0; i < config.length; i++) {
                 grid.setWalkable(config[i].x, config[i].y, config[i].walkable);
             }
             var aStar = new AStar();
-            grid.setStartNode(0, 0);
+            grid.setStartNode(playerX, playerY);
             grid.setEndNode(gridX, gridY);
+            //有路
             if (aStar.findPath(grid)) {
                 var path = aStar._path;
-                var playerTween = egret.Tween.get(player);
-                for (var i = 0; i < path.length; i++) {
-                    console.log("x:" + path[i].x + " y:" + path[i].y + "\n");
-                    playerTween.to({ x: path[i].x * MyMap.SIZE, y: path[i].y * MyMap.SIZE }, 1500, egret.Ease.sineIn);
+                if (!move) {
+                    for (var i = 0; i < path.length; i++) {
+                        move = true;
+                        playerX = gridX;
+                        playerY = gridY;
+                        playerTween.to({ x: path[i].x * MyMap.SIZE, y: path[i].y * MyMap.SIZE }, 500, egret.Ease.sineIn)
+                            .call(function () {
+                            if (Math.abs(player.x - (gridX * MyMap.SIZE)) < 10 && Math.abs(player.y - (gridY * MyMap.SIZE)) < 10) {
+                                console.log("到达目的地");
+                                move = false;
+                            }
+                        });
+                    }
                 }
+                else {
+                    egret.Tween.removeTweens(playerTween);
+                    console.log("remove");
+                    move = false;
+                }
+            }
+            else {
+                console.log("无法到达");
             }
         }, this);
     };
@@ -87,26 +112,4 @@ var MyMap = (function (_super) {
     return MyMap;
 }(egret.DisplayObjectContainer));
 egret.registerClass(MyMap,'MyMap');
-//网格类，实例化对象表示每一个网格
-var Tile = (function (_super) {
-    __extends(Tile, _super);
-    function Tile(data) {
-        _super.call(this);
-        this.init(data);
-    }
-    var d = __define,c=Tile,p=c.prototype;
-    p.init = function (data) {
-        this.x = data.x * MyMap.SIZE;
-        this.y = data.y * MyMap.SIZE;
-        this.walkable = data.walkable;
-        this.image = data.image;
-        var bitmap = new egret.Bitmap();
-        bitmap.width = 128; //128 * 5 = 640
-        bitmap.height = 128; //128 * 8 = 1024
-        bitmap.texture = RES.getRes(this.image);
-        this.addChild(bitmap);
-    };
-    return Tile;
-}(egret.DisplayObjectContainer));
-egret.registerClass(Tile,'Tile');
 //# sourceMappingURL=MyMap.js.map
